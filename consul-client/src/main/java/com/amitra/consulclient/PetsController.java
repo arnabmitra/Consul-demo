@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.websocket.server.PathParam;
-
 @RestController
 @RequestMapping("/pets")
 public class PetsController {
@@ -18,17 +16,17 @@ public class PetsController {
     @Autowired
     DiscoveryClient client;
 
+    @Autowired
+    RestTemplate myRestTemplate;
 
-    RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping("/{name}")
-    public String[] getPets(@PathVariable("name") String petName)
-    {
-        ServiceInstance serviceInstance=client.getInstances("pet-service")
+    public String[] getPets(@PathVariable("name") String petName) {
+        ServiceInstance serviceInstance = client.getInstances("pet-service")
                 .stream().findFirst().
-                        orElseThrow(()-> new RuntimeException("pet-service not found"));
+                        orElseThrow(() -> new RuntimeException("pet-service not found"));
 
-        String url = serviceInstance.getUri().toString()+ "/pets/"+petName;
-        return restTemplate.getForObject(url,String[].class);
+        String url = "http://pet-service/" + "/pets/" + petName;
+        return myRestTemplate.getForObject(url, String[].class);
     }
 }
